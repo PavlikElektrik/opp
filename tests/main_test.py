@@ -11,10 +11,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 
 @pytest.fixture(autouse=True)
-def reset_category_count():
+def reset_class_variables():
     """Фикстура для сброса счетчиков перед каждым тестом."""
     Category.category_count = 0
     Category.product_count = 0
+    Product.all_products = []
+    yield
+    Category.category_count = 0
+    Category.product_count = 0
+    Product.all_products = []
 
 
 def test_product_initialization():
@@ -51,8 +56,8 @@ def test_category_initialization():
 
     assert category.name == "Test Category"
     assert category.description == "Test Description"
-    assert len(category.products) == 1
-    assert category.products[0].name == "Test Product"
+    assert len(category._Category__products) == 1
+    assert "Test Product" in category.products
 
 
 def test_category_string_representation():
@@ -69,8 +74,8 @@ def test_category_count_single_category():
     product1 = Product("Product1", "Desc1", 100.0, 1)
     product2 = Product("Product2", "Desc2", 200.0, 2)
 
-    Category("Test Category", "Test Description",
-             [product1, product2])
+    category = Category("Test Category", "Test Description",
+                        [product1, product2])
 
     assert Category.category_count == 1
     assert Category.product_count == 2
@@ -94,7 +99,8 @@ def test_empty_category():
     category = Category("Empty Category", "Empty Description", [])
 
     assert category.name == "Empty Category"
-    assert len(category.products) == 0
+    assert len(category._Category__products) == 0
+    assert category.products == ""
     assert Category.category_count == 1
     assert Category.product_count == 0
 
@@ -116,7 +122,7 @@ def test_category_attributes_types():
 
     assert isinstance(category.name, str)
     assert isinstance(category.description, str)
-    assert isinstance(category.products, list)
+    assert isinstance(category.products, str)
 
 
 def test_category_with_multiple_products():
@@ -129,10 +135,10 @@ def test_category_with_multiple_products():
 
     category = Category("Test Category", "Test Description", products)
 
-    assert len(category.products) == 3
-    assert category.products[0].name == "Product1"
-    assert category.products[1].name == "Product2"
-    assert category.products[2].name == "Product3"
+    assert len(category._Category__products) == 3
+    assert "Product1" in category.products
+    assert "Product2" in category.products
+    assert "Product3" in category.products
 
 
 def test_load_data_from_json():
@@ -173,9 +179,9 @@ def test_load_data_from_json():
         assert len(categories) == 1
         assert categories[0].name == "Test Category"
         assert categories[0].description == "Test Description"
-        assert len(categories[0].products) == 2
-        assert categories[0].products[0].name == "Test Product 1"
-        assert categories[0].products[1].name == "Test Product 2"
+        assert len(categories[0]._Category__products) == 2
+        assert "Test Product 1" in categories[0].products
+        assert "Test Product 2" in categories[0].products
     finally:
         # Удаляем временный файл
         os.unlink(temp_file_path)
@@ -250,8 +256,8 @@ def test_load_data_from_json_missing_keys():
         assert len(categories) == 1
         assert categories[0].name == "Test Category"
         assert categories[0].description == "Test Description"
-        assert len(categories[0].products) == 1
-        assert categories[0].products[0].name == "Test Product 1"
+        assert len(categories[0]._Category__products) == 1
+        assert "Test Product 1" in categories[0].products
     finally:
         # Удаляем временный файл
         os.unlink(temp_file_path)
@@ -299,3 +305,158 @@ def test_class_variables_independence():
     assert category1.product_count == 3
     assert category2.category_count == 2
     assert category2.product_count == 3
+
+
+def test_private_products_attribute():
+    """Тест приватного атрибута продуктов в категории."""
+    product = Product("Test Product", "Test Description", 100.0, 10)
+    category = Category("Test Category", "Test Description", [product])
+
+    # Проверяем, что доступ к приватному атрибуту невозможен напрямую
+    with pytest.raises(AttributeError):
+        _ = category.__products
+
+
+def test_add_product_method():
+    """Тест метода add_product."""
+    product = Product("Test Product", "Test Description", 100.0, 10)
+    category = Category("Test Category", "Test Description", [])
+
+    # Добавляем продукт
+    category.add_product(product)
+
+    # Проверяем, что продукт добавлен
+    assert len(category._Category__products) == 1
+    assert "Test Product" in category.products
+    assert Category.product_count == 1
+
+
+def test_add_product_invalid_type():
+    """Тест добавления невалидного типа в категорию."""
+    category = Category("Test Category", "Test Description", [])
+
+    # Пытаемся добавить не продукт
+    with pytest.raises(TypeError):
+        category.add_product("Not a product")
+
+
+def test_products_property():
+    """Тест свойства products."""
+    product1 = Product("Product1", "Desc1", 100.0, 1)
+    product2 = Product("Product2", "Desc2", 200.0, 2)
+
+    category = Category("Test Category", "Test Description",
+                        [product1, product2])
+
+    # Проверяем, что свойство возвращает строку
+    assert isinstance(category.products, str)
+
+    # Проверяем формат вывода
+    assert "Product1, 100.0 руб. Остаток: 1 шт." in category.products
+    assert "Product2, 200.0 руб. Остаток: 2 шт." in category.products
+
+
+def test_new_product_class_method():
+    """Тест класс-метода new_product."""
+    product_data = {
+        "name": "New Product",
+        "description": "New Description",
+        "price": 100.0,
+        "quantity": 5
+    }
+
+    # Создаем продукт через класс-метод
+    product = Product.new_product(product_data)
+
+    # Проверяем, что продукт создан правильно
+    assert product.name == "New Product"
+    assert product.description == "New Description"
+    assert product.price == 100.0
+    assert product.quantity == 5
+
+
+def test_new_product_duplicate():
+    """Тест класс-метода new_product с дубликатом."""
+    # Создаем первый продукт
+    product1 = Product("Duplicate Product", "Description", 100.0, 5)
+
+    # Создаем второй продукт с тем же именем через класс-метод
+    product_data = {
+        "name": "Duplicate Product",
+        "description": "New Description",
+        "price": 150.0,
+        "quantity": 3
+    }
+
+    product2 = Product.new_product(product_data)
+
+    # Проверяем, что вернулся первый продукт с обновленными значениями
+    assert product2 is product1
+    assert product2.quantity == 8  # 5 + 3
+    assert product2.price == 150.0  # Выбрана максимальная цена
+
+
+def test_price_getter_setter():
+    """Тест геттера и сеттера для цены."""
+    product = Product("Test Product", "Test Description", 100.0, 10)
+
+    # Проверяем геттер
+    assert product.price == 100.0
+
+    # Устанавливаем новую цену через сеттер
+    product.price = 150.0
+    assert product.price == 150.0
+
+
+def test_price_setter_invalid():
+    """Тест сеттера для невалидной цены."""
+    product = Product("Test Product", "Test Description", 100.0, 10)
+
+    # Пытаемся установить отрицательную цену
+    with patch('builtins.print') as mock_print:
+        product.price = -50.0
+        assert product.price == 100.0  # Цена не изменилась
+        mock_print.assert_called_with("Цена не должна быть нулевая или отрицательная")
+
+    # Пытаемся установить нулевую цену
+    with patch('builtins.print') as mock_print:
+        product.price = 0
+        assert product.price == 100.0  # Цена не изменилась
+        mock_print.assert_called_with("Цена не должна быть нулевая или отрицательная")
+
+
+def test_price_setter_decrease_with_confirmation():
+    """Тест сеттера для понижения цены с подтверждением."""
+    product = Product("Test Product", "Test Description", 100.0, 10)
+
+    # Мокаем input для подтверждения
+    with patch('builtins.input', return_value='y'):
+        product.price = 80.0
+        assert product.price == 80.0  # Цена изменилась
+
+    # Мокаем input для отмены
+    with patch('builtins.input', return_value='n'):
+        product.price = 70.0
+        assert product.price == 80.0  # Цена не изменилась
+
+
+def test_all_products_class_variable():
+    """Тест атрибута класса all_products."""
+    # Очищаем список перед тестом
+    Product.all_products = []
+
+    # Создаем продукты
+    product1 = Product("Product1", "Desc1", 100.0, 1)
+    product2 = Product("Product2", "Desc2", 200.0, 2)
+
+    # Проверяем, что продукты добавлены в all_products
+    assert len(Product.all_products) == 2
+    assert product1 in Product.all_products
+    assert product2 in Product.all_products
+
+
+def test_products_property_empty_category():
+    """Тест свойства products для пустой категории."""
+    category = Category("Test Category", "Test Description", [])
+    assert category.products == ""
+
