@@ -5,10 +5,9 @@ import json
 import tempfile
 from unittest.mock import patch
 from src.main import Product, Category, load_data_from_json, main, CategoryIterator
+
 # Добавляем путь к исходному коду для импорта
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
-
-
 
 
 @pytest.fixture(autouse=True)
@@ -543,3 +542,33 @@ def test_category_total_quantity():
     # Проверяем общее количество товаров
     total_quantity = category.get_total_quantity()
     assert total_quantity == 8  # 5 + 3
+
+
+def test_product_addition_multiple():
+    """Тест сложения нескольких продуктов."""
+    product1 = Product("Product1", "Desc1", 100.0, 2)
+    product2 = Product("Product2", "Desc2", 200.0, 3)
+    product3 = Product("Product3", "Desc3", 300.0, 4)
+
+    # Правильное сложение нескольких продуктов - попарно
+    result = (product1 + product2) + (product3.price * product3.quantity)
+    expected = (100.0 * 2) + (200.0 * 3) + (300.0 * 4)  # 200 + 600 + 1200 = 2000
+    assert result == expected
+
+
+def test_product_addition_with_price_change():
+    """Тест сложения продуктов после изменения цены."""
+    product1 = Product("Product1", "Desc1", 100.0, 2)
+    product2 = Product("Product2", "Desc2", 200.0, 3)
+
+    # Запоминаем первоначальную сумму
+    initial_sum = product1 + product2
+
+    # Меняем цену первого продукта
+    product1.price = 150.0
+
+    # Проверяем, что сумма изменилась корректно
+    new_sum = product1 + product2
+    expected = (150.0 * 2) + (200.0 * 3)  # 300 + 600 = 900
+    assert new_sum == expected
+    assert new_sum != initial_sum

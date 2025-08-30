@@ -21,10 +21,12 @@ class Product:
                 f"{self.__price}, {self.quantity})")
 
     def __add__(self, other):
-        """Сложение продуктов - возвращает общую стоимость товаров."""
+        """Магический метод для сложения продуктов.
+        Возвращает общую стоимость всех товаров на складе."""
         if not isinstance(other, Product):
-            raise TypeError("Можно складывать только объекты Product")
-        return (self.price * self.quantity) + (other.price * other.quantity)
+            raise TypeError("Можно складывать только объекты класса Product")
+        # Используем прямое обращение к приватным атрибутам
+        return (self.__price * self.quantity) + (other.__price * other.quantity)
 
     @classmethod
     def new_product(cls, product_data, products_list=None):
@@ -43,8 +45,8 @@ class Product:
                 # Объединяем количество
                 existing_product.quantity += quantity
                 # Выбираем максимальную цену
-                if price > existing_product.price:
-                    existing_product.price = price
+                if price > existing_product.__price:
+                    existing_product.__price = price
                 return existing_product
 
         return cls(name, description, price, quantity)
