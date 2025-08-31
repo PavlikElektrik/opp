@@ -1,5 +1,4 @@
 import json
-import os
 
 
 class Product:
@@ -21,12 +20,13 @@ class Product:
                 f"{self.__price}, {self.quantity})")
 
     def __add__(self, other):
-        """Магический метод для сложения продуктов.
-        Возвращает общую стоимость всех товаров на складе."""
+        """Складывать можно только объекты одного типа (одного класса)."""
         if not isinstance(other, Product):
-            raise TypeError("Можно складывать только объекты класса Product")
-        # Используем прямое обращение к приватным атрибутам
-        return (self.__price * self.quantity) + (other.__price * other.quantity)
+            raise TypeError("Можно складывать "
+                            "только объекты класса Product и его наследников")
+        if type(self) is not type(other):
+            raise TypeError("Складывать можно только продукты одного типа")
+        return (self.price * self.quantity) + (other.price * other.quantity)
 
     @classmethod
     def new_product(cls, product_data, products_list=None):
@@ -36,8 +36,10 @@ class Product:
         price = product_data.get('price', 0.0)
         quantity = product_data.get('quantity', 0)
 
-        # Используем переданный список или общий список всех продуктов
-        search_list = products_list if products_list is not None else cls.all_products
+        # Используем переданный список или общий список
+        # всех продуктов
+        search_list = products_list if (
+                products_list is not None) else cls.all_products
 
         # Проверка на дубликаты
         for existing_product in search_list:
@@ -63,14 +65,39 @@ class Product:
             print("Цена не должна быть нулевая или отрицательная")
             return
 
-        # Проверка на понижение цены
+        # Проверка на
+        # понижение цены
         if new_price < self.__price:
-            confirmation = input("Вы уверены, что хотите понизить цену? (y/n): ")
+            confirmation = input("Вы уверены, "
+                                 "что хотите понизить цену? (y/n): ")
             if confirmation.lower() != 'y':
                 print("Отмена изменения цены.")
                 return
 
         self.__price = new_price
+
+
+class Smartphone(Product):
+    """Класс для представления смартфона."""
+
+    def __init__(self, name, description, price, quantity,
+                 efficiency, model, memory, color):
+        super().__init__(name, description, price, quantity)
+        self.efficiency = efficiency
+        self.model = model
+        self.memory = memory
+        self.color = color
+
+
+class LawnGrass(Product):
+    """Класс для представления газонной травы."""
+
+    def __init__(self, name, description, price, quantity,
+                 country, germination_period, color):
+        super().__init__(name, description, price, quantity)
+        self.country = country
+        self.germination_period = germination_period
+        self.color = color
 
 
 class Category:
@@ -98,12 +125,14 @@ class Category:
         return CategoryIterator(self.__products)
 
     def add_product(self, product):
-        """Добавляет продукт в категорию."""
-        if isinstance(product, Product):
-            self.__products.append(product)
+        """Добавляет продукт в
+         категорию только если это Product или его наследник."""
+        if isinstance(product, Product) and issubclass(type(product), Product):
+            self._Category__products.append(product)
             Category.product_count += 1
         else:
-            raise TypeError("Можно добавлять только объекты класса Product")
+            raise TypeError("Можно добавлять "
+                            "только объекты класса Product или его наследников")
 
     @property
     def products(self):
@@ -149,7 +178,8 @@ def load_data_from_json(file_path):
 
     categories = []
     for category_data in data:
-        # Используем get с значениями по умолчанию для обработки отсутствующих ключей
+        # Используем get с значениями
+        # по умолчанию для обработки отсутствующих ключей
         products = []
         for product_data in category_data.get('products', []):
             product = Product(

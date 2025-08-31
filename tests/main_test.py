@@ -4,7 +4,9 @@ import os
 import json
 import tempfile
 from unittest.mock import patch
-from src.main import Product, Category, load_data_from_json, main, CategoryIterator
+from src.main import (Product, Category,
+                      load_data_from_json, main,
+                      CategoryIterator, Smartphone, LawnGrass)
 
 # Добавляем путь к исходному коду для импорта
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
@@ -62,9 +64,17 @@ def test_category_initialization():
 
 def test_category_string_representation():
     """Тест строкового представления категории."""
-    product1 = Product("Product1", "Desc1", 100.0, 5)
-    product2 = Product("Product2", "Desc2", 200.0, 3)
-    category = Category("Test Category", "Test Description", [product1, product2])
+    product1 = Product("Product1",
+                       "Desc1",
+                       100.0,
+                       5)
+    product2 = Product("Product2",
+                       "Desc2",
+                       200.0,
+                       3)
+    category = Category("Test Category",
+                        "Test Description",
+                        [product1, product2])
 
     # Ожидаем общее количество товаров (5 + 3 = 8)
     expected_string = "Test Category, количество продуктов: 8 шт."
@@ -77,8 +87,8 @@ def test_category_count_single_category():
     product1 = Product("Product1", "Desc1", 100.0, 1)
     product2 = Product("Product2", "Desc2", 200.0, 2)
 
-    category = Category("Test Category", "Test Description",
-                        [product1, product2])
+    Category("Test Category", "Test Description",
+             [product1, product2])
 
     assert Category.category_count == 1
     assert Category.product_count == 2
@@ -418,13 +428,15 @@ def test_price_setter_invalid():
     with patch('builtins.print') as mock_print:
         product.price = -50.0
         assert product.price == 100.0  # Цена не изменилась
-        mock_print.assert_called_with("Цена не должна быть нулевая или отрицательная")
+        mock_print.assert_called_with("Цена не должна "
+                                      "быть нулевая или отрицательная")
 
     # Пытаемся установить нулевую цену
     with patch('builtins.print') as mock_print:
         product.price = 0
         assert product.price == 100.0  # Цена не изменилась
-        mock_print.assert_called_with("Цена не должна быть нулевая или отрицательная")
+        mock_print.assert_called_with("Цена не должна"
+                                      " быть нулевая или отрицательная")
 
 
 def test_price_setter_decrease_with_confirmation():
@@ -537,7 +549,9 @@ def test_category_total_quantity():
     product1 = Product("Product1", "Desc1", 100.0, 5)
     product2 = Product("Product2", "Desc2", 200.0, 3)
 
-    category = Category("Test Category", "Test Description", [product1, product2])
+    category = Category("Test Category",
+                        "Test Description",
+                        [product1, product2])
 
     # Проверяем общее количество товаров
     total_quantity = category.get_total_quantity()
@@ -552,7 +566,8 @@ def test_product_addition_multiple():
 
     # Правильное сложение нескольких продуктов - попарно
     result = (product1 + product2) + (product3.price * product3.quantity)
-    expected = (100.0 * 2) + (200.0 * 3) + (300.0 * 4)  # 200 + 600 + 1200 = 2000
+    expected = (100.0 * 2) + (200.0 * 3) + (300.0 * 4)
+    # 200 + 600 + 1200 = 2000
     assert result == expected
 
 
@@ -572,3 +587,50 @@ def test_product_addition_with_price_change():
     expected = (150.0 * 2) + (200.0 * 3)  # 300 + 600 = 900
     assert new_sum == expected
     assert new_sum != initial_sum
+
+
+def test_smartphone_initialization():
+    smartphone = Smartphone("Test Phone",
+                            "Desc",
+                            1000.0,
+                            3,
+                            95.5,
+                            "ModelX",
+                            128,
+                            "Black")
+    assert smartphone.name == "Test Phone"
+    assert smartphone.model == "ModelX"
+    assert smartphone.memory == 128
+    assert smartphone.color == "Black"
+
+
+def test_lawngrass_initialization():
+    grass = LawnGrass("Grass",
+                      "Desc",
+                      500.0,
+                      10,
+                      "Россия",
+                      "7 дней",
+                      "Зеленый")
+    assert grass.country == "Россия"
+    assert grass.germination_period == "7 дней"
+    assert grass.color == "Зеленый"
+
+
+def test_addition_same_class():
+    s1 = Smartphone("Phone1", "Desc", 100.0, 2, 90.0, "M1", 64, "Gray")
+    s2 = Smartphone("Phone2", "Desc", 200.0, 3, 95.0, "M2", 128, "Black")
+    assert s1 + s2 == (100.0 * 2) + (200.0 * 3)
+
+
+def test_addition_different_class_raises():
+    s1 = Smartphone("Phone1", "Desc", 100.0, 2, 90.0, "M1", 64, "Gray")
+    g1 = LawnGrass("Grass", "Desc", 500.0, 1, "Россия", "7 дней", "Green")
+    with pytest.raises(TypeError):
+        _ = s1 + g1
+
+
+def test_add_invalid_type_to_category():
+    c = Category("Test", "Desc", [])
+    with pytest.raises(TypeError):
+        c.add_product("not a product")
