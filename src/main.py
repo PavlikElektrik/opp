@@ -1,16 +1,52 @@
 import json
+from abc import ABC, abstractmethod
 
 
-class Product:
-    """Класс для представления товара."""
-    all_products = []
+class InfoMixin:
+    """Миксин, который выводит информацию о создании объекта."""
 
+    def __init__(self, *args, **kwargs):
+        print(f"Создан объект {self.__class__.__name__} с параметрами {args} {kwargs}")
+        super().__init__(*args, **kwargs)
+
+
+class BaseProduct(ABC):
+    """Абстрактный базовый класс для всех продуктов."""
+
+    @abstractmethod
     def __init__(self, name, description, price, quantity):
         self.name = name
         self.description = description
         self.__price = price
         self.quantity = quantity
+
+    @property
+    @abstractmethod
+    def price(self):
+        pass
+
+    @price.setter
+    @abstractmethod
+    def price(self, value):
+        pass
+
+    @abstractmethod
+    def __str__(self):
+        pass
+
+    @abstractmethod
+    def __repr__(self):
+        pass
+
+
+class Product(InfoMixin, BaseProduct):
+    """Класс продукта."""
+    all_products = []
+
+    def __init__(self, name, description, price, quantity):
+        super().__init__(name, description, price, quantity)
         Product.all_products.append(self)
+        self.__price = price
 
     def __str__(self):
         return f"{self.name}, {self.__price} руб. Остаток: {self.quantity} шт."
@@ -20,13 +56,10 @@ class Product:
                 f"{self.__price}, {self.quantity})")
 
     def __add__(self, other):
-        """Складывать можно только объекты одного типа (одного класса)."""
-        if not isinstance(other, Product):
-            raise TypeError("Можно складывать "
-                            "только объекты класса Product и его наследников")
-        if type(self) is not type(other):
-            raise TypeError("Складывать можно только продукты одного типа")
-        return (self.price * self.quantity) + (other.price * other.quantity)
+        if not isinstance(other, self.__class__):
+            raise TypeError("Складывать можно только объекты одного класса")
+        return (self.__price * self.quantity) + (other.__price * other.quantity)
+
 
     @classmethod
     def new_product(cls, product_data, products_list=None):

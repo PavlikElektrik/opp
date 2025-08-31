@@ -634,3 +634,102 @@ def test_add_invalid_type_to_category():
     c = Category("Test", "Desc", [])
     with pytest.raises(TypeError):
         c.add_product("not a product")
+
+
+@pytest.fixture
+def sample_product():
+    return Product("Samsung Galaxy S23 Ultra",
+                   "256GB, Серый цвет,"
+                   " 200MP камера",
+                   180000.0,
+                   5)
+
+
+@pytest.fixture
+def smartphone():
+    return Smartphone(
+        "Iphone 15",
+        "512GB,"
+        " Gray space",
+        210000.0,
+        8,
+        efficiency=90,
+        model="Pro",
+        memory=256,
+        color="Gray"
+    )
+
+
+@pytest.fixture
+def lawn_grass():
+    # Это какой-то другой класс, не Product
+    return "not a product"  # Пример объекта, который не является Product
+
+
+def test_lawn_grass_creation(lawn_grass):
+    lawn_grass = LawnGrass("Трава газонная",
+                           "Описание",
+                           100, 50,
+                           "Russia",
+                           7,
+                           "Green")
+    assert lawn_grass.name == "Трава газонная"
+    assert lawn_grass.country == "Russia"
+    assert lawn_grass.germination_period == 7
+    assert lawn_grass.color == "Green"
+
+
+# Тестируем создание объектов
+def test_product_creation(sample_product):
+    assert sample_product.name == "Samsung Galaxy S23 Ultra"
+    assert sample_product.price == 180000.0
+    assert sample_product.quantity == 5
+    assert sample_product.description == "256GB, Серый цвет, 200MP камера"
+
+
+def test_smartphone_creation(smartphone):
+    assert smartphone.name == "Iphone 15"
+    assert smartphone.efficiency == 90
+    assert smartphone.memory == 256
+    assert smartphone.color == "Gray"
+
+
+# Тестируем работу миксина (информация при создании объекта)
+def test_info_mixin(capsys):
+    Product("Test Product", "Test Description", 1000.0, 10)
+    captured = capsys.readouterr()
+    assert "Создан объект Product" in captured.out
+
+
+# Тестируем сложение продуктов
+def test_product_addition(sample_product, smartphone):
+    total = sample_product + smartphone
+    assert total == (sample_product.price * sample_product.quantity) + \
+           (smartphone.price * smartphone.quantity)
+
+
+def test_product_addition_invalid_type(sample_product, lawn_grass):
+    with pytest.raises(TypeError):
+        sample_product + lawn_grass
+
+
+# Тестируем работу с категориями
+def test_add_product_to_category():
+    product = Product("Product", "Desc", 100.0, 2)
+    category = Category("Category", "Desc", [])
+
+    category.add_product(product)
+    assert Category.product_count == 1
+
+
+def test_add_invalid_product_to_category():
+    category = Category("Трава", "Все для сада")
+    with pytest.raises(TypeError):
+        category.add_product("Not a product")
+
+
+def test_category_product_count():
+    category = Category("Телевизоры", "Все телевизоры")
+    assert Category.product_count == 0  # По умолчанию товаров нет
+    category.add_product(Product("Телевизор LG", "4K телевизор", 70000, 2))
+    assert Category.product_count == 1
