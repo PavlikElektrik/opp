@@ -2,11 +2,17 @@ import json
 from abc import ABC, abstractmethod
 
 
+class ZeroQuantityError(Exception):
+    """Пользовательское исключение для товаров с нулевым количеством."""
+    pass
+
+
 class InfoMixin:
     """Миксин, который выводит информацию о создании объекта."""
 
     def __init__(self, *args, **kwargs):
-        print(f"Создан объект {self.__class__.__name__} с параметрами {args} {kwargs}")
+        print(f"Создан объект "
+              f"{self.__class__.__name__} с параметрами {args} {kwargs}")
         super().__init__(*args, **kwargs)
 
 
@@ -44,6 +50,9 @@ class Product(InfoMixin, BaseProduct):
     all_products = []
 
     def __init__(self, name, description, price, quantity):
+        if quantity == 0:
+            raise ZeroQuantityError("Товар с нулевым количеством"
+                                    " не может быть добавлен")
         super().__init__(name, description, price, quantity)
         Product.all_products.append(self)
         self.__price = price
@@ -57,9 +66,10 @@ class Product(InfoMixin, BaseProduct):
 
     def __add__(self, other):
         if not isinstance(other, self.__class__):
-            raise TypeError("Складывать можно только объекты одного класса")
-        return (self.__price * self.quantity) + (other.__price * other.quantity)
-
+            raise TypeError("Складывать можно только"
+                            " объекты одного класса")
+        return ((self.__price * self.quantity) +
+                (other.__price * other.quantity))
 
     @classmethod
     def new_product(cls, product_data, products_list=None):
@@ -69,8 +79,7 @@ class Product(InfoMixin, BaseProduct):
         price = product_data.get('price', 0.0)
         quantity = product_data.get('quantity', 0)
 
-        # Используем переданный список или общий список
-        # всех продуктов
+        # Используем переданный список или общий список всех продуктов
         search_list = products_list if (
                 products_list is not None) else cls.all_products
 
@@ -98,11 +107,10 @@ class Product(InfoMixin, BaseProduct):
             print("Цена не должна быть нулевая или отрицательная")
             return
 
-        # Проверка на
-        # понижение цены
+        # Проверка на понижение цены
         if new_price < self.__price:
-            confirmation = input("Вы уверены, "
-                                 "что хотите понизить цену? (y/n): ")
+            confirmation = input("Вы уверены, что хотите"
+                                 " понизить цену? (y/n): ")
             if confirmation.lower() != 'y':
                 print("Отмена изменения цены.")
                 return
@@ -158,14 +166,32 @@ class Category:
         return CategoryIterator(self.__products)
 
     def add_product(self, product):
-        """Добавляет продукт в
-         категорию только если это Product или его наследник."""
-        if isinstance(product, Product) and issubclass(type(product), Product):
-            self._Category__products.append(product)
-            Category.product_count += 1
-        else:
-            raise TypeError("Можно добавлять "
-                            "только объекты класса Product или его наследников")
+        """Добавляет продукт в категорию только
+         если это Product или его наследник."""
+        try:
+            if (isinstance(product, Product) and
+                    issubclass(type(product), Product)):
+                if product.quantity == 0:
+                    raise ZeroQuantityError("Товар с нулевым количеством"
+                                            " не может быть добавлен")
+                self._Category__products.append(product)
+                Category.product_count += 1
+                print("Товар успешно добавлен")
+            else:
+                raise TypeError("Можно добавлять только "
+                                "объекты класса Product или его наследников")
+        except ZeroQuantityError as e:
+            print(f"Ошибка при добавлении товара: {e}")
+        finally:
+            print("Обработка добавления товара завершена")
+
+    def middle_price(self):
+        """Рассчитывает среднюю цену товаров в категории."""
+        try:
+            total_price = sum(product.price for product in self.__products)
+            return total_price / len(self.__products)
+        except ZeroDivisionError:
+            return 0
 
     @property
     def products(self):
@@ -211,8 +237,8 @@ def load_data_from_json(file_path):
 
     categories = []
     for category_data in data:
-        # Используем get с значениями
-        # по умолчанию для обработки отсутствующих ключей
+        # Используем get с значениями по
+        # умолчанию для обработки отсутствующих ключей
         products = []
         for product_data in category_data.get('products', []):
             product = Product(
@@ -236,24 +262,27 @@ def load_data_from_json(file_path):
 def main():
     """Основная функция для демонстрации работы классов."""
     # Создание продуктов
-    product1 = Product(
-        "Samsung Galaxy S23 Ultra",
-        "256GB, Серый цвет, 200MP камера",
-        180000.0,
-        5
-    )
-    product2 = Product(
-        "Iphone 15",
-        "512GB, Gray space",
-        210000.0,
-        8
-    )
-    product3 = Product(
-        "Xiaomi Redmi Note 11",
-        "1024GB, Синий",
-        31000.0,
-        14
-    )
+    try:
+        product1 = Product(
+            "Samsung Galaxy S23 Ultra",
+            "256GB, Серый цвет, 200MP камера",
+            180000.0,
+            5
+        )
+        product2 = Product(
+            "Iphone 15",
+            "512GB, Gray space",
+            210000.0,
+            8
+        )
+        product3 = Product(
+            "Xiaomi Redmi Note 11",
+            "1024GB, Синий",
+            31000.0,
+            14
+        )
+    except ZeroQuantityError as e:
+        print(e)
 
     # Демонстрация строкового представления продуктов
     print("Строковое представление продуктов:")
@@ -297,6 +326,9 @@ def main():
     print("Статистика:")
     print(f"Всего категорий: {Category.category_count}")
     print(f"Всего продуктов: {Category.product_count}")
+
+    # Демонстрация метода middle_price
+    print(f"Средняя цена товаров в категории: {category1.middle_price()}")
 
 
 if __name__ == "__main__":

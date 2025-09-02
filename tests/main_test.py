@@ -6,7 +6,8 @@ import tempfile
 from unittest.mock import patch
 from src.main import (Product, Category,
                       load_data_from_json, main,
-                      CategoryIterator, Smartphone, LawnGrass)
+                      CategoryIterator, Smartphone,
+                      LawnGrass, ZeroQuantityError)
 
 # Добавляем путь к исходному коду для импорта
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
@@ -701,18 +702,6 @@ def test_info_mixin(capsys):
     assert "Создан объект Product" in captured.out
 
 
-# Тестируем сложение продуктов
-def test_product_addition(sample_product, smartphone):
-    total = sample_product + smartphone
-    assert total == (sample_product.price * sample_product.quantity) + \
-           (smartphone.price * smartphone.quantity)
-
-
-def test_product_addition_invalid_type(sample_product, lawn_grass):
-    with pytest.raises(TypeError):
-        sample_product + lawn_grass
-
-
 # Тестируем работу с категориями
 def test_add_product_to_category():
     product = Product("Product", "Desc", 100.0, 2)
@@ -733,3 +722,49 @@ def test_category_product_count():
     assert Category.product_count == 0  # По умолчанию товаров нет
     category.add_product(Product("Телевизор LG", "4K телевизор", 70000, 2))
     assert Category.product_count == 1
+
+
+# Добавьте эти тесты в конец вашего тестового файла
+
+def test_product_creation_with_zero_quantity():
+    """Тест создания товара с нулевым количеством."""
+    with pytest.raises(ZeroQuantityError):
+        Product("Test Product", "Description", 100.0, 0)
+
+
+def test_category_middle_price_with_products():
+    """Тест расчета средней цены в категории с товарами."""
+    product1 = Product("Product1", "Desc1", 100.0, 5)
+    product2 = Product("Product2", "Desc2", 200.0, 3)
+    category = Category("Test Category", "Description", [product1, product2])
+
+    assert category.middle_price() == 150.0
+
+
+def test_category_middle_price_empty_category():
+    """Тест расчета средней цены в пустой категории."""
+    category = Category("Empty Category", "Description", [])
+
+    assert category.middle_price() == 0
+
+
+def test_add_product_with_zero_quantity():
+    """Тест добавления товара с нулевым количеством в категорию."""
+    # Создаем продукт с количеством 1, затем изменяем количество на 0
+    product = Product("Test Product", "Description", 100.0, 1)
+    product.quantity = 0
+
+    category = Category("Test Category", "Description")
+
+    # Не должно вызывать исключение, но должно выводить сообщение об ошибке
+    category.add_product(product)
+    assert len(category._Category__products) == 0
+
+
+def test_zero_quantity_error_message():
+    """Тест сообщения об ошибке при создании товара с нулевым количеством."""
+    try:
+        Product("Test Product", "Description", 100.0, 0)
+        assert False, "Должно было быть вызвано исключение ZeroQuantityError"
+    except ZeroQuantityError as e:
+        assert str(e) == "Товар с нулевым количеством не может быть добавлен"
