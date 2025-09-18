@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прототипы страниц</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Roboto', sans-serif;
+        }
+        .header {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 0 0 10px 10px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: bold;
+        }
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: 2rem;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .table th {
+            background-color: #6a11cb;
+            color: white;
+        }
+        .list-group-item {
+            border-left: 3px solid #6a11cb;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .contacts-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Прототипы страниц</a>
+        </div>
+    </nav>
+
+    <!-- Заголовок -->
+    <div class="header text-center">
+        <div class="container">
+            <h1 class="display-4">Прототипы страниц</h1>
+            <p class="lead">Демонстрация страниц с использованием Bootstrap</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Главная страница -->
+        <section id="main" class="mb-5">
+            <h2 class="mb-4">Главная</h2>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    Таблица залов
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Зал</th>
+                                    <th>Вместимость</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1.900</td>
+                                    <td>1000</td>
+                                </tr>
+                                <tr>
+                                    <td>2.000</td>
+                                    <td>2000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Каталог -->
+        <section id="catalog" class="mb-5">
+            <h2 class="mb-4">Каталог</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            Код
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">1,500</li>
+                                <li class="list-group-item">1,400</li>
+                                <li class="list-group-item">1,600</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            Сроки
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">2024 год</li>
+                                <li class="list-group-item">2025 год</li>
+                                <li class="list-group-item">2026 год</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            Сроки сдачи
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">2024 год</li>
+                                <li class="list-group-item">2025 год</li>
+                                <li class="list-group-item">2026 год</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-danger text-white">
+                            Сроки общего пользования
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group">
+                                <li class="list-group-item">2024 год</li>
+                                <li class="list-group-item">2025 год</li>
+                                <li class="list-group-item">2026 год</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Категория 1 -->
+        <section id="category" class="mb-5">
+            <h2 class="mb-4">Категория 1</h2>
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    Таблица залов категории
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Зал</th>
+                                    <th>Зал</th>
+                                    <th>Зал</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1.900</td>
+                                    <td>1000</td>
+                                    <td>1.900</td>
+                                </tr>
+                                <tr>
+                                    <td>2.000</td>
+                                    <td>2000</td>
+                                    <td>2.000</td>
+                                </tr>
+                                <tr>
+                                    <td>3.000</td>
+                                    <td>1000</td>
+                                    <td>3.000</td>
+                                </tr>
+                                <tr>
+                                    <td>4.000</td>
+                                    <td>2000</td>
+                                    <td>4.000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Контакты -->
+        <section id="contacts" class="mb-5">
+            <h2 class="mb-4">Контакты</h2>
+            <div class="contacts-section">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Контактная информация</h4>
+                        <p><strong>Адрес:</strong> г. Москва, ул. Примерная, д. 123</p>
+                        <p><strong>Телефон:</strong> +7 (495) 123-45-67</p>
+                        <p><strong>Email:</strong> info@example.com</p>
+                        <p><strong>Режим работы:</strong> Пн-Пт: 9:00-18:00</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Обратная связь</h4>
+                        <form id="contactForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Имя</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Сообщение</label>
+                                <textarea class="form-control" id="message" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Отправить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Футер -->
+    <footer class="footer text-center">
+        <div class="container">
+            <p>© 2024 Прототипы страниц. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Обработка формы
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Форма отправлена! В реальном приложении данные были бы отправлены на сервер.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
