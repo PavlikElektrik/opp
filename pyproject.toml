@@ -10,7 +10,12 @@ requires-python = ">=3.11"
 dependencies = [
     "flake8 (>=7.3.0,<8.0.0)",
     "pytest (>=8.4.1,<9.0.0)",
-    "pytest-cov (>=6.2.1,<7.0.0)"
+    "pytest-cov (>=6.2.1,<7.0.0)",
+    "python-telegram-bot (>=22.4,<23.0)",
+    "openai (>=1.108.0,<2.0.0)",
+    "transformers (>=4.56.1,<5.0.0)",
+    "datasets (>=4.1.1,<5.0.0)",
+    "matplotlib (>=3.10.6,<4.0.0)"
 ]
 
 

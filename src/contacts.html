@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Контакты</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Контакты</a>
+        </div>
+    </nav>
+    <div class="container mt-5">
+        <section id="contacts" class="mb-5">
+            <h2 class="mb-4">Контакты</h2>
+            <div class="contacts-section bg-white p-4 rounded shadow-sm">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Контактная информация</h4>
+                        <p><strong>Адрес:</strong> г. Москва, ул. Примерная, д. 123</p>
+                        <p><strong>Телефон:</strong> +7 (495) 123-45-67</p>
+                        <p><strong>Email:</strong> info@example.com</p>
+                        <p><strong>Режим работы:</strong> Пн-Пт: 9:00-18:00</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Обратная связь</h4>
+                        <form id="contactForm">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Имя</label>
+                                <input type="text" class="form-control" id="name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Сообщение</label>
+                                <textarea class="form-control" id="message" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Отправить</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Форма отправлена! В реальном приложении данные были бы отправлены на сервер.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
